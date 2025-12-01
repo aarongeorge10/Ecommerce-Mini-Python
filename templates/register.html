@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 400px;
+            background: #ffffff;
+            margin: 60px auto;
+            padding: 30px 35px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+        }
+
+        .registerbtn {
+            width: 420px;
+            padding: 14px;
+            background: #4a90e2;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.3s;
+        }
+
+        .registerbtn:hover {
+            background: #3578c7;
+        }
+
+        .registerbtn:active {
+            transform: scale(0.98);
+        }
+
+        .homebtn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: #ddd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .homebtn:hover {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form action="/userreg/" method="POST">
+        {% csrf_token %}
+
+        <div class="container">
+            <h1> Registration</h1>
+            <p>Please fill in this form to create an account.</p>
+
+            <label>Name :</label>
+            <input type="text" placeholder="Enter your Name" name="name" required>
+
+            <label>Email :</label>
+            <input type="email" placeholder="Enter your Email" name="email" required>
+
+            <label>Phonenumber :</label>
+            <input type="number" placeholder="Enter Phone Number" name="phonenumber" required>
+
+            <label>Username :</label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+
+            <label>Password :</label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+
+            <button type="submit" class="registerbtn">Register</button>
+
+            <a href="{% url 'login' %}" class="homebtn">Already have an account?</a>
+        </div>
+    </form>
+
+</body>
+
+</html>

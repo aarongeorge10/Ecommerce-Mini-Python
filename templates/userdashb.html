@@ -84,6 +84,23 @@
             }
         }
 
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* space between logo and text */
+        }
+
+        .site-name {
+            color: white;
+            text-decoration: none;
+            font-size: 26px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            margin-top: 10px;
+            /* adjust if needed */
+        }
+
         /* PRODUCT GRID */
         .product-grid {
             display: grid;
@@ -126,16 +143,26 @@
 <body>
 
     <!-- NAVBAR -->
+
     <nav>
         <div class="nav-inner">
-            <img class="site-logo"
-                src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
-                alt="Logo">
 
+            <div class="brand">
+                <img class="site-logo"
+                    src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
+                    alt="Logo">
+
+                <a href="{% url 'userdashb' %}" class="site-name">AutoCar</a>
+            </div>
             <ul>
-                <a href="#"><span class="cart-icon">🛒</span></a>
-                <a href="/userlogout/">Logout</a>
+                <li>
+                    <a href="{% url 'usercart' %}">
+                        🛒 <span style="color: yellow; font-size: 20px;">{{ cart_count|default:"0" }}</span>
+                    </a>
+                </li>
+                <li><a href="/userlogout/">Logout</a></li>
             </ul>
+
         </div>
     </nav>
 
@@ -153,7 +180,9 @@
 
             <h3>{{ c.name }}</h3>
             <p>Price: ₹{{ c.price }}</p>
-            <a href="#" class="btn-cart">Add to Cart</a>
+
+            <!-- correct name and pass id -->
+            <a href="{% url 'add_to_cart' c.id %}" class="btn-cart">Add to Cart</a>
         </div>
         {% endfor %}
     </div>

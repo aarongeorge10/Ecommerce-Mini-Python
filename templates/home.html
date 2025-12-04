@@ -71,7 +71,8 @@
 
         .site-name {
             color: white;
-            font-size: 32px;
+            text-decoration: none;
+            font-size: 26px;
             font-weight: bold;
             font-family: Arial, sans-serif;
             margin-top: 10px;
@@ -150,7 +151,7 @@
                     src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
                     alt="Logo">
 
-                <span class="site-name">AutoCar</span>
+                <a href="{% url 'home' %}" class="site-name">AutoCar</a>
             </div>
             <ul>
                 <li><a href="{% url 'login' %}">Login</a></li>

@@ -58,7 +58,7 @@
         nav ul li a {
             text-decoration: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
         }
 
@@ -68,7 +68,7 @@
             padding: 10px 0;
             color: white;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 26px;
             letter-spacing: 1px;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
             animation: glow 2s infinite alternate;
@@ -166,9 +166,10 @@
 
         </div>
     </nav>
-
-    <h1 style="padding-left:20px;">Welcome {{name}}</h1>
-
+    <marquee class="fancy-marquee" direction="left">
+        Welcome {{name}} to AutoCar 
+    </marquee>
+    
     <!-- PRODUCTS -->
     <div class="product-grid">
         {% for c in car %}

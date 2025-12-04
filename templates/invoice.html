@@ -327,10 +327,32 @@
                 Thank you for shopping with us! This is a computer-generated invoice and does not require any signature.
             </p>
 
-            <button class="print-button" onclick="window.print()">🖨 Print Invoice</button>
+            <button class="print-button" onclick="printAndRedirect()">🖨 Print Invoice</button>
+            <script>
+                function printAndRedirect() {
+                    // Optional: hide button immediately after click
+                    const btn = document.querySelector('.print-button');
+                    if (btn) btn.style.display = 'none';
+
+                    // Open print dialog
+                    window.print();
+
+                    // When printing is finished / dialog is closed
+                    window.onafterprint = function () {
+                        window.location.href = "{% url 'userdashb' %}";
+                    };
+
+                    // Fallback: force redirect after 2 seconds in case onafterprint doesn't fire
+                    setTimeout(function () {
+                        window.location.href = "{% url 'userdashb' %}";
+                    }, 5000);
+                }
+            </script>
 
         </div>
     </div>
+
+
 
 </body>
 

@@ -4,6 +4,7 @@ from .models import Cart, img_up, User_reg, Order, OrderItem
 from django.contrib.auth import authenticate ,login as log,logout
 # from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.db.models import Sum
 from django.http import HttpResponseForbidden
 from django.core.mail import send_mail
 
@@ -19,6 +20,12 @@ def register(request):
 
 def login(request):
     return render(request,"login.html")
+
+def get_current_user(request):
+    user_id = request.session.get('id')
+    if not user_id:
+        return None
+    return User_reg.objects.filter(id=user_id).first()
 
 def userreg(request):
     if request.method=='POST':
@@ -60,43 +67,42 @@ def userlog(request):
         return render(request,'home.html')
     
 def userdashb(request):
-    # try to supply cart_count for navbar (works for both anonymous & logged-in)
-    cart_count = 0
-    if request.user.is_authenticated:
-        cart_count = Cart.objects.filter(user=request.user).aggregate(total=F('quantity')) \
-                     .values_list('total', flat=True).first() or 0
-        # above aggregate isn't summing across rows, so fallback to sum below if needed:
-        cart_count = sum(item.quantity for item in Cart.objects.filter(user=request.user))
+    user = get_current_user(request)
+
+    if user:
+        # logged-in → count from Cart table
+        cart_count = Cart.objects.filter(user=user).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
     else:
+        # anonymous → count from session
         session_cart = request.session.get('cart', {})
         cart_count = sum(session_cart.values())
 
     id = request.session.get('id')
     name = request.session.get('name')
     car = img_up.objects.all()
-    return render(request, "userdashb.html", {'id': id, 'name': name, 'car': car, 'cart_count': cart_count})
+
+    return render(request, "userdashb.html", {
+        'id': id,
+        'name': name,
+        'car': car,
+        'cart_count': cart_count,
+    })
 
 
 def usercart(request, *args, **kwargs):
-    """
-    Defensive cart view: accepts unexpected args/kwargs so you don't get TypeError.
-    Works for logged-in users (DB Cart) and anonymous users (session 'cart').
-    """
     items = []
     total_items = 0
     total_price = 0
 
-    # --- logged-in user: read from Cart model (assumes Cart.product FK) ---
-    if request.user.is_authenticated:
-        rows = Cart.objects.filter(user=request.user).select_related('product')
+    user = get_current_user(request)
+
+    if user:
+        # Logged-in User_reg → read from Cart table
+        rows = Cart.objects.filter(user=user).select_related('product')
         for r in rows:
-            # try multiple common field names for product FK
             product = getattr(r, 'product', None) or getattr(r, 'img_up', None)
-            if not product:
-                # fallback if Cart stores product id instead of FK
-                pid = getattr(r, 'product_id', None) or getattr(r, 'img_up_id', None)
-                if pid:
-                    product = img_up.objects.filter(id=pid).first()
             if not product:
                 continue
             qty = int(getattr(r, 'quantity', 1) or 1)
@@ -106,9 +112,9 @@ def usercart(request, *args, **kwargs):
             total_items += qty
             total_price += subtotal
 
-    # --- anonymous user: read from session ---
     else:
-        session_cart = request.session.get('cart', {})  # expected {'1': 2, '4': 1}
+        # Anonymous → session cart (keep your existing code here)
+        session_cart = request.session.get('cart', {}) # expected {'1': 2, '4': 1}
         if session_cart:
             # safe parse ids
             try:
@@ -148,40 +154,45 @@ def cart(request):
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(img_up, id=product_id)
+    user = get_current_user(request)  # your custom user, from session
 
-    # logged in → DB cart
-    if request.user.is_authenticated:
+    if user:
+        # Logged-in user → store in Cart model
         cart_item, created = Cart.objects.get_or_create(
-            user=request.user, product=product, defaults={'quantity': 1}
+            user=user,
+            product=product,
+            defaults={'quantity': 0}  # start at 0, then increment below
         )
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
+
+        # Increment in the database
+        Cart.objects.filter(pk=cart_item.pk).update(
+            quantity=F('quantity') + 1
+        )
+
+        # Optional: refresh the object in memory if you need the new value
+        cart_item.refresh_from_db()
 
     else:
-        # anonymous → session cart
+        # Anonymous user → session cart
         session_cart = request.session.get('cart', {})
         pid_str = str(product.id)
         session_cart[pid_str] = session_cart.get(pid_str, 0) + 1
         request.session['cart'] = session_cart
 
-    # return to previous page
     return redirect(request.META.get('HTTP_REFERER', 'userdashb'))
 
 def increase_qty(request, product_id):
     product = get_object_or_404(img_up, id=product_id)
+    user = get_current_user(request)
 
-    # anonymous user -> session cart (simple dictionary: {product_id: qty})
-    if not request.user.is_authenticated:
+    if not user:
         cart = request.session.get('cart', {})
         cart[str(product_id)] = cart.get(str(product_id), 0) + 1
         request.session['cart'] = cart
         return redirect('usercart')
 
-    # logged-in user -> DB cart
-    # get_or_create ensures a Cart row exists
     cart_item, created = Cart.objects.get_or_create(
-        user=request.user,
+        user=user,
         product=product,
         defaults={'quantity': 1}
     )
@@ -190,12 +201,12 @@ def increase_qty(request, product_id):
         cart_item.save()
     return redirect('usercart')
 
-
 def decrease_qty(request, product_id):
     product = get_object_or_404(img_up, id=product_id)
+    user = get_current_user(request)  # <-- use your custom user
 
     # anonymous user -> session cart
-    if not request.user.is_authenticated:
+    if not user:
         cart = request.session.get('cart', {})
         key = str(product_id)
         if key in cart:
@@ -207,9 +218,9 @@ def decrease_qty(request, product_id):
             request.session['cart'] = cart
         return redirect('usercart')
 
-    # logged-in user -> DB cart
+    # logged-in user -> DB cart (Cart.user is a FK to User_reg)
     try:
-        cart_item = Cart.objects.get(user=request.user, product=product)
+        cart_item = Cart.objects.get(user=user, product=product)
     except Cart.DoesNotExist:
         # nothing to do
         return redirect('usercart')
@@ -219,73 +230,91 @@ def decrease_qty(request, product_id):
         cart_item.save()
     else:
         cart_item.delete()
+
     return redirect('usercart')
 
 
 def remove_item(request, product_id):
     product = get_object_or_404(img_up, id=product_id)
+    user = get_current_user(request)
 
     # anonymous user -> session cart
-    if not request.user.is_authenticated:
+    if not user:
         cart = request.session.get('cart', {})
         cart.pop(str(product_id), None)
         request.session['cart'] = cart
         return redirect('usercart')
 
     # logged-in user -> DB cart
-    Cart.objects.filter(user=request.user, product=product).delete()
+    Cart.objects.filter(user=user, product=product).delete()
     return redirect('usercart')
 
-def history(request):
-    return render(request,"history.html")
 
 
 def checkout(request):
-    # Optional: try to load User_reg from session
-    user = None
-    user_id = request.session.get('id')   # ⬅️ this matches userlog()
-    if user_id:
-        user = User_reg.objects.filter(id=user_id).first()
+    user = get_current_user(request)  # your custom user (User_reg) or None
 
-    # Use the same session cart as in usercart()
-    session_cart = request.session.get('cart', {})
-    if not session_cart:
-        # no items → back to cart
-        return redirect('usercart')
-
-    # Build items + total from session cart
     items = []
     total_price = Decimal('0.00')
 
-    try:
-        ids = [int(k) for k in session_cart.keys()]
-    except Exception:
-        ids = []
+    if user:
+        # ✅ Logged-in user → build items from Cart table
+        rows = Cart.objects.filter(user=user).select_related('product')
+        if not rows.exists():
+            return redirect('usercart')  # nothing in DB cart
 
-    products = img_up.objects.filter(id__in=ids)
-    prod_map = {p.id: p for p in products}
+        for r in rows:
+            product = getattr(r, 'product', None) or getattr(r, 'img_up', None)
+            if not product:
+                continue
 
-    for pid_str, qty in session_cart.items():
+            qty = int(getattr(r, 'quantity', 1) or 1)
+            price = Decimal(str(getattr(product, 'price', 0) or 0))
+            subtotal = price * qty
+
+            items.append({
+                'product': product,
+                'quantity': qty,
+                'subtotal': subtotal,
+            })
+            total_price += subtotal
+
+    else:
+        # ✅ Anonymous user → build items from session cart
+        session_cart = request.session.get('cart', {})
+        if not session_cart:
+            return redirect('usercart')
+
         try:
-            pid = int(pid_str)
-            qty = int(qty) or 0
+            ids = [int(k) for k in session_cart.keys()]
         except Exception:
-            continue
+            ids = []
 
-        product = prod_map.get(pid)
-        if not product:
-            continue
+        products = img_up.objects.filter(id__in=ids)
+        prod_map = {p.id: p for p in products}
 
-        price = Decimal(str(product.price))  # convert from CharField
-        subtotal = price * qty
+        for pid_str, qty in session_cart.items():
+            try:
+                pid = int(pid_str)
+                qty = int(qty) or 0
+            except Exception:
+                continue
 
-        items.append({
-            'product': product,
-            'quantity': qty,
-            'subtotal': subtotal,
-        })
-        total_price += subtotal
+            product = prod_map.get(pid)
+            if not product:
+                continue
 
+            price = Decimal(str(product.price))
+            subtotal = price * qty
+
+            items.append({
+                'product': product,
+                'quantity': qty,
+                'subtotal': subtotal,
+            })
+            total_price += subtotal
+
+    # 🚦 Handle POST (placing the order)
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
 
@@ -297,7 +326,7 @@ def checkout(request):
                 'error': 'Please select a payment method.',
             })
 
-        # Create Order (user may be None if not logged in)
+        # Create Order (user may be None if anonymous)
         order = Order.objects.create(
             user=user,
             total_price=total_price,
@@ -313,12 +342,14 @@ def checkout(request):
                 price=Decimal(str(item['product'].price)),
             )
 
-        # Clear session cart
-        request.session['cart'] = {}
+        # 🧹 Clear cart after order
+        if user:
+            Cart.objects.filter(user=user).delete()  # clear DB cart
+        else:
+            request.session['cart'] = {}             # clear session cart
 
         # Go to invoice page
         return redirect('invoice', id=order.id)
-    
 
     # GET → show checkout page
     return render(request, 'checkout.html', {
@@ -355,4 +386,18 @@ def invoice(request, id):
         "order": order,
         "items": items,
         "total": grand_total,
+    })
+
+def history(request):
+    user = get_current_user(request)
+
+    if not user:
+        # no custom user logged in → send to login page
+        return redirect('login')
+
+    # fetch all orders for this user (latest first)
+    orders = Order.objects.filter(user=user).order_by('-id')
+
+    return render(request, "history.html", {
+        "orders": orders,
     })

@@ -140,6 +140,7 @@
       </div>
 
       <div class="nav-links">
+        <a href="{% url 'history' %}">History</a>
         <a href="/userlogout/">Logout</a>
       </div>
     </div>
@@ -205,10 +206,7 @@
 
       <div class="totals" style="margin-top:16px;">
         <div class="total-card">Subtotal: <span style="margin-left:8px">₹{{ total_price }}</span></div>
-        <div class="total-card" style="background:#fffef6; border:1px solid #fff4d9;">
-          Shipping: <span style="margin-left:8px">Calculated at checkout</span>
-        </div>
-        <a href="#" class="btn btn-primary" style="padding:10px 16px;">Proceed to Checkout</a>
+        <a href="{% url 'checkout' %}" class="btn btn-primary" style="padding:10px 16px;">Proceed to Checkout</a>
       </div>
 
       {% else %}

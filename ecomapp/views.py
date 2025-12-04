@@ -233,3 +233,9 @@ def remove_item(request, product_id):
     # logged-in user -> DB cart
     Cart.objects.filter(user=request.user, product=product).delete()
     return redirect('usercart')
+
+def history(request):
+    return render(request,"history.html")
+
+def checkout(request):
+    return render(request, 'checkout.html')

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ order.id }}</title>
+
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #111827;
+            --accent-2: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+            --radius: 12px;
+            --max-width: 1100px;
+            --gap: 18px;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--accent);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: #030202;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .nav-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--gap);
+            padding: 8px 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-logo {
+            height: 52px;
+            width: auto;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .site-name {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            display: inline-block;
+            letter-spacing: 0.03em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+            border: 1px solid transparent;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN WRAPPER */
+        .page-wrapper {
+            max-width: var(--max-width);
+            margin: 110px auto 40px;
+            /* push down below navbar */
+            padding: 16px;
+        }
+
+        /* PRINT PAGE SETTINGS */
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        .invoice-container {
+            background: #ffffff;
+            margin: auto;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid #ddd;
+        }
+
+        @media (min-width: 900px) {
+            .invoice-container {
+                width: 800px;
+            }
+        }
+
+        .header-section {
+            border-bottom: 2px solid #444;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-section h2 {
+            margin: 0;
+            color: #333;
+            letter-spacing: 0.12em;
+        }
+
+        .company-info {
+            text-align: right;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .company-info strong {
+            font-size: 15px;
+        }
+
+        .invoice-details,
+        .customer-details {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .invoice-details span,
+        .customer-details span {
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid #bbb;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .footer-total {
+            text-align: right;
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .note {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .print-button {
+            display: block;
+            margin: 18px auto 0;
+            padding: 10px 18px;
+            border: none;
+            font-size: 16px;
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .print-button:hover {
+            background: #444;
+        }
+
+        @media print {
+
+            nav,
+            .print-button,
+            .page-wrapper {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            nav {
+                display: none;
+            }
+
+            body {
+                background: #ffffff;
+            }
+
+            .invoice-container {
+                border: none;
+                box-shadow: none;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-inner">
+            <div class="brand">
+                <img class="site-logo"
+                    src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
+                    alt="Logo">
+                <a href="{% url 'userdashb' %}" class="site-name">AutoCar</a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'usercart' %}">Cart</a>
+                <a href="/userlogout/">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="invoice-container">
+
+            <div class="header-section">
+                <h2>INVOICE</h2>
+                <div class="company-info">
+                    <strong>AutoCar Pvt Ltd.</strong><br>
+                    Chennai, India<br>
+                    support@autocar.com
+                </div>
+            </div>
+
+            <div class="invoice-details">
+                <span><strong>Invoice No:</strong> #{{ order.id }}</span><br>
+                <span><strong>Date:</strong> {{ order.created_at|date:"d/m/Y" }}</span>
+            </div>
+
+            {% if order.user %}
+            <div class="customer-details">
+                <span><strong>Billing To:</strong> {{ order.user.name }}</span><br>
+                <span><strong>Email:</strong> {{ order.user.email }}</span><br>
+                <span><strong>Phone No:</strong> +91 {{ order.user.phonenumber }}</span>
+            </div>
+            {% endif %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price (₹)</th>
+                        <th>Qty</th>
+                        <th>Total (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.row_total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align:center;">No products found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="footer-total">
+                Grand Total: ₹ {{ total }}
+            </div>
+
+            <p class="note">
+                Thank you for shopping with us! This is a computer-generated invoice and does not require any signature.
+            </p>
+
+            <button class="print-button" onclick="window.print()">🖨 Print Invoice</button>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

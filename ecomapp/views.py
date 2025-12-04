@@ -1,8 +1,10 @@
-from django.shortcuts import render,redirect,get_object_or_404
-from .models import img_up,User_reg,Cart
+from decimal import Decimal
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Cart, img_up, User_reg, Order, OrderItem
 from django.contrib.auth import authenticate ,login as log,logout
 # from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.http import HttpResponseForbidden
 from django.core.mail import send_mail
 
 
@@ -237,5 +239,120 @@ def remove_item(request, product_id):
 def history(request):
     return render(request,"history.html")
 
+
 def checkout(request):
-    return render(request, 'checkout.html')
+    # Optional: try to load User_reg from session
+    user = None
+    user_id = request.session.get('id')   # ⬅️ this matches userlog()
+    if user_id:
+        user = User_reg.objects.filter(id=user_id).first()
+
+    # Use the same session cart as in usercart()
+    session_cart = request.session.get('cart', {})
+    if not session_cart:
+        # no items → back to cart
+        return redirect('usercart')
+
+    # Build items + total from session cart
+    items = []
+    total_price = Decimal('0.00')
+
+    try:
+        ids = [int(k) for k in session_cart.keys()]
+    except Exception:
+        ids = []
+
+    products = img_up.objects.filter(id__in=ids)
+    prod_map = {p.id: p for p in products}
+
+    for pid_str, qty in session_cart.items():
+        try:
+            pid = int(pid_str)
+            qty = int(qty) or 0
+        except Exception:
+            continue
+
+        product = prod_map.get(pid)
+        if not product:
+            continue
+
+        price = Decimal(str(product.price))  # convert from CharField
+        subtotal = price * qty
+
+        items.append({
+            'product': product,
+            'quantity': qty,
+            'subtotal': subtotal,
+        })
+        total_price += subtotal
+
+    if request.method == 'POST':
+        payment_method = request.POST.get('payment_method')
+
+        if not payment_method:
+            # re-render checkout with error
+            return render(request, 'checkout.html', {
+                'cart_items': items,
+                'total_price': total_price,
+                'error': 'Please select a payment method.',
+            })
+
+        # Create Order (user may be None if not logged in)
+        order = Order.objects.create(
+            user=user,
+            total_price=total_price,
+            payment_method=payment_method,
+        )
+
+        # Create OrderItems
+        for item in items:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=Decimal(str(item['product'].price)),
+            )
+
+        # Clear session cart
+        request.session['cart'] = {}
+
+        # Go to invoice page
+        return redirect('invoice', id=order.id)
+    
+
+    # GET → show checkout page
+    return render(request, 'checkout.html', {
+        'cart_items': items,
+        'total_price': total_price,
+    })
+
+def invoice(request, id):
+    # Get the logged-in User_reg from the session (same logic as checkout)
+    user_obj = None
+    user_id = request.session.get('id')
+    if user_id:
+        user_obj = User_reg.objects.filter(id=user_id).first()
+
+    # Get the order by id
+    order = get_object_or_404(Order, id=id)
+
+    # (Optional but recommended) – ensure the order belongs to this user
+    if user_obj and order.user_id != user_obj.id:
+        return HttpResponseForbidden("You are not allowed to view this invoice.")
+
+    # Get items for this order from OrderItem, NOT Cart
+    items = OrderItem.objects.filter(order=order)
+
+    # Calculate total from the order items
+    
+    grand_total = 0
+    for item in items:
+        item.row_total = item.price * item.quantity
+        grand_total += item.row_total
+
+
+    return render(request, "invoice.html", {
+        "order": order,
+        "items": items,
+        "total": grand_total,
+    })

@@ -4,8 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #111827;
+            --accent-2: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+            --radius: 12px;
+            --max-width: 1100px;
+            --gap: 18px;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--accent);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: #030202;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .nav-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--gap);
+            padding: 8px 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-logo {
+            height: 52px;
+            width: auto;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .site-name {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            display: inline-block;
+            letter-spacing: 0.03em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+            border: 1px solid transparent;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN WRAPPER */
+        .page-wrapper {
+            max-width: var(--max-width);
+            margin: 110px auto 40px;
+            /* push down below navbar */
+            padding: 16px;
+        }
+
+    </style>
 </head>
 <body>
+    <nav>
+        <div class="nav-inner">
+            <div class="brand">
+                <img class="site-logo"
+                    src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
+                    alt="Logo">
+                <a href="{% url 'userdashb' %}" class="site-name">AutoCar</a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'userdashb' %}">Continue Shopping</a>
+                <a href="/userlogout/">Logout</a>
+            </div>
+        </div>
+    </nav>
+
     <h1>History</h1>
 </body>
 </html>

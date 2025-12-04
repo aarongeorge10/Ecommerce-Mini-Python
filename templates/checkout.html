@@ -2,60 +2,378 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
     <style>
-        :root{
+    :root {
       --bg: #f5f7fb;
       --card: #ffffff;
       --muted: #6b7280;
       --accent: #111827;
       --accent-2: #f59e0b; /* yellow */
       --danger: #ef4444;
-      --shadow: 0 6px 18px rgba(16,24,40,0.08);
-      --radius: 10px;
+      --shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+      --radius: 12px;
       --max-width: 1100px;
       --gap: 18px;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
-    /* Reset & layout */
-    * { box-sizing: border-box; }
-    html,body { height:100%; margin:0; padding:0; background:var(--bg); color:var(--accent); }
-    a { color: inherit; text-decoration: none; } /* remove underline globally */
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--accent);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
     /* NAVBAR */
     nav {
       background: #030202;
       color: #fff;
       position: fixed;
-      top:0; left:0; right:0;
-      z-index:1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
+
     .nav-inner {
       max-width: var(--max-width);
       margin: 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: var(--gap);
-      padding: 10px 16px;
+      padding: 8px 16px;
     }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .site-logo { height:64px; width:auto; border-radius:8px; display:block; }
-    .site-name { color:#fff; font-size:20px; font-weight:700; margin:0; display:inline-block; }
-    .nav-links { display:flex; gap:16px; align-items:center; }
-    .nav-links a { color:#fff; font-weight:600; padding:8px 10px; border-radius:8px; }
-    .nav-links a:hover { background: rgba(255,255,255,0.06); }
 
-    /* Page container (push below fixed navbar) */
-    main { max-width: var(--max-width); margin: 110px auto 60px; padding: 24px; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
+    .site-logo {
+      height: 52px;
+      width: auto;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .site-name {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #fff;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      max-width: var(--max-width);
+      margin: 110px auto 60px;
+      padding: 18px;
+    }
+
+    .checkout-layout {
+      display: grid;
+      grid-template-columns: 2fr 1.1fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .checkout-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .page-header {
+      margin-bottom: 18px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+
+    .page-subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #f59e0b;
+    }
+
+    /* ERROR */
+    .error {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* ORDER TABLE */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 400px;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .product-name {
+      font-weight: 500;
+    }
+
+    .price-cell {
+      white-space: nowrap;
+    }
+
+    /* SUMMARY RIGHT CARD */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-weight: 500;
+    }
+
+    .summary-row.total {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed #e5e7eb;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .summary-row.total .summary-value {
+      color: #16a34a;
+    }
+
+    .small-text {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* PAYMENT METHODS */
+    form {
+      margin: 0;
+    }
+
+    .payment-group {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+
+    @media (max-width: 700px) {
+      .payment-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .payment-option {
+      position: relative;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease,
+        background 0.15s ease;
+      background: #f9fafb;
+    }
+
+    .payment-option input[type="radio"] {
+      accent-color: var(--accent-2);
+      margin: 0;
+    }
+
+    .payment-label-main {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .payment-label-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .payment-option:hover {
+      border-color: var(--accent-2);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+      background: #fffbeb;
+    }
+
+    .payment-option input[type="radio"]:checked + span .payment-label-main {
+      color: var(--accent-2);
+    }
+
+    /* BUTTON */
+    .btn-primary {
+      border: none;
+      outline: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #111827;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 20px rgba(180, 83, 9, 0.35);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(180, 83, 9, 0.45);
+      filter: brightness(1.02);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 16px rgba(180, 83, 9, 0.35);
+      filter: brightness(0.98);
+    }
+
+    .btn-icon {
+      font-size: 16px;
+    }
     </style>
 </head>
 <body>
-    <nav>
+  <nav>
     <div class="nav-inner">
       <div class="brand">
         <img class="site-logo"
@@ -65,13 +383,135 @@
       </div>
 
       <div class="nav-links">
-        <a href="{% url 'usercart' %}">Cart</a>
         <a href="{% url 'history' %}">History</a>
         <a href="/userlogout/">Logout</a>
       </div>
     </div>
   </nav>
 
-    <h1>checkout</h1>
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">Checkout</h1>
+      <p class="page-subtitle">Review your order and choose a payment method to place your booking.</p>
+    </div>
+
+    {% if error %}
+      <div class="error">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <div class="checkout-layout">
+      <!-- LEFT: ORDER SUMMARY -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Order Summary</h2>
+            <p class="card-subtitle">Items currently in your cart</p>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            Secured Checkout
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price (₹)</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart_items %}
+              <tr>
+                <td class="product-name">{{ item.product.name }}</td>
+                <td class="price-cell">{{ item.product.price }}</td>
+                <td>{{ item.quantity }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3">Your cart is empty.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RIGHT: PAYMENT + TOTAL -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Payment & Total</h2>
+            <p class="card-subtitle">Choose how you want to pay</p>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-row">
+            <span class="summary-label">Order Total</span>
+            <span class="summary-value">₹ {{ total_price }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Delivery</span>
+            <span class="summary-value">Free</span>
+          </div>
+          <div class="summary-row total">
+            <span class="summary-label">Amount Payable</span>
+            <span class="summary-value">₹ {{ total_price }}</span>
+          </div>
+          <p class="small-text">
+            Prices are inclusive of all taxes. You’ll receive an order confirmation via email and SMS.
+          </p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div style="margin-top: 14px;">
+            <span style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);">
+              Payment Method
+            </span>
+
+            <div class="payment-group" >
+              <!-- COD -->
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="Cash on Delivery">
+                <span>
+                  <span class="payment-label-main">Cash on Delivery</span>
+                  <span class="payment-label-sub">Pay in cash when your order arrives</span>
+                </span>
+              </label>
+
+              <!-- UPI -->
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="UPI">
+                <span>
+                  <span class="payment-label-main">UPI</span>
+                  <span class="payment-label-sub">GPay, PhonePe, Paytm & more</span>
+                </span>
+              </label>
+
+              <!-- Card -->
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="Card">
+                <span>
+                  <span class="payment-label-main">Card</span>
+                  <span class="payment-label-sub">Credit / Debit cards</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">✅</span>
+            <span>Confirm &amp; Place Order</span>
+          </button>
+        </form>
+      </section>
+    </div>
+  </main>
 </body>
 </html>

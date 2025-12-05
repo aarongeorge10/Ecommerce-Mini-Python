@@ -35,6 +35,7 @@ def userreg(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         User_reg(name=name,email=email,phonenumber=phonenumber,username=username,password=password).save()
+        return redirect('login')
     return render(request,'register.html')
 
 def userlog(request):

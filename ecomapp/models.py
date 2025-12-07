@@ -3,8 +3,9 @@ from django.db import models
 # Create your models here.
 class img_up(models.Model):
     name = models.CharField(max_length=200)
-    price = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(null=True,blank=True,upload_to="images/")
+    description = models.TextField(blank=True, null=True, max_length=200)
 
 
 class User_reg(models.Model):
@@ -16,12 +17,12 @@ class User_reg(models.Model):
 
 class Cart(models.Model):
     user = models.ForeignKey(User_reg, on_delete=models.CASCADE)
-    product = models.ForeignKey(img_up, on_delete=models.CASCADE)   # your product model name
+    product = models.ForeignKey(img_up, on_delete=models.CASCADE)   
     quantity = models.PositiveIntegerField(default=1)
 
 class Order(models.Model):
     user = models.ForeignKey(User_reg, on_delete=models.CASCADE)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=20, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=50)
 

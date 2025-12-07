@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
             margin-top: 90px;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         /* NAVBAR */
@@ -18,13 +19,10 @@
             background-color: #030202;
             padding: 0;
             position: fixed;
-            /* 🔥 Fix navbar on top */
             top: 0;
-            /* Align at the top */
             left: 0;
             right: 0;
             z-index: 1000;
-            /* Keep it above all content */
         }
 
         nav .nav-inner {
@@ -52,7 +50,6 @@
             padding: 0;
             list-style: none;
             padding-top: 35px;
-
         }
 
         nav ul li a {
@@ -68,7 +65,7 @@
             padding: 10px 0;
             color: white;
             font-weight: bold;
-            font-size: 26px;
+            font-size: 23px;
             letter-spacing: 1px;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
             animation: glow 2s infinite alternate;
@@ -88,7 +85,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            /* space between logo and text */
         }
 
         .site-name {
@@ -98,7 +94,6 @@
             font-weight: bold;
             font-family: Arial, sans-serif;
             margin-top: 10px;
-            /* adjust if needed */
         }
 
         /* PRODUCT GRID */
@@ -115,6 +110,12 @@
             padding: 15px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+        }
+
+        .product-card a.img-link {
+            text-decoration: none;
+            color: inherit;
         }
 
         .product-card img {
@@ -122,6 +123,22 @@
             height: 200px;
             object-fit: cover;
             border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-card h3 {
+            margin: 10px 0 4px;
+        }
+
+        .product-card p {
+            margin: 4px 0;
+            font-size: 14px;
         }
 
         .btn-cart {
@@ -137,16 +154,128 @@
         .btn-cart:hover {
             background-color: #444;
         }
+
+        /* 🔵 POPUP STYLES (CSS-ONLY USING :target) */
+
+        /* Fullscreen overlay (hidden by default) */
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+        }
+
+        /* When URL hash matches the popup id */
+        .popup:target {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-inner {
+            width: 340px;
+            max-width: 95vw;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            padding: 16px 18px 20px 18px;
+            position: relative;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .popup-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .popup-close {
+            text-decoration: none;
+            font-size: 22px;
+            line-height: 1;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .popup-close:hover {
+            color: #000;
+        }
+
+        .popup-image {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .popup-body {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .popup-body p {
+            margin: 4px 0;
+        }
+
+        .popup-price {
+            font-weight: 700;
+        }
+
+        .popup-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .popup-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .popup-btn-primary {
+            background: black;
+            color: white;
+        }
+
+        .popup-btn-primary:hover {
+            background: #333;
+        }
+
+        .popup-btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .popup-btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
     </style>
 </head>
 
 <body>
 
     <!-- NAVBAR -->
-
     <nav>
         <div class="nav-inner">
-
             <div class="brand">
                 <img class="site-logo"
                     src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
@@ -163,19 +292,22 @@
                 </li>
                 <li><a href="/userlogout/">Logout</a></li>
             </ul>
-
         </div>
     </nav>
+
     <marquee class="fancy-marquee" direction="left">
-        Welcome {{name}} to AutoCar 
+        Welcome {{ name }} to AutoCar
     </marquee>
-    
+
     <!-- PRODUCTS -->
     <div class="product-grid">
         {% for c in car %}
         <div class="product-card">
             {% if c.image %}
-            <img src="{{ c.image.url }}" alt="{{ c.name }}">
+            <!-- Image wrapped in a link → opens popup via :target -->
+            <a href="#popup{{ c.id }}" class="img-link">
+                <img src="{{ c.image.url }}" alt="{{ c.name }}">
+            </a>
             {% else %}
             <p>No image</p>
             {% endif %}
@@ -183,11 +315,41 @@
             <h3>{{ c.name }}</h3>
             <p>Price: ₹{{ c.price }}</p>
 
-            <!-- correct name and pass id -->
             <a href="{% url 'add_to_cart' c.id %}" class="btn-cart">Add to Cart</a>
         </div>
         {% endfor %}
     </div>
+
+    <!-- POPUPS (ONE PER PRODUCT) -->
+    {% for c in car %}
+    <div id="popup{{ c.id }}" class="popup">
+        <div class="popup-inner">
+            <div class="popup-header">
+                <h2 class="popup-title">{{ c.name }}</h2>
+                <!-- Close goes back to page without hash -->
+                <a href="#" class="popup-close">&times;</a>
+            </div>
+
+            {% if c.image %}
+            <img src="{{ c.image.url }}" alt="{{ c.name }}" class="popup-image">
+            {% endif %}
+
+            <div class="popup-body">
+                <p class="popup-price">Price: ₹{{ c.price }}</p>
+
+                <p><strong>Specifications:</strong></p>
+                <p>
+                    {{ c.description|default:"No description available." }}
+                </p>
+            </div>
+
+            <div class="popup-actions">
+                <a href="#" class="popup-btn popup-btn-secondary">Close</a>
+                <a href="{% url 'add_to_cart' c.id %}" class="popup-btn popup-btn-primary">Add to Cart</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
 </body>
 

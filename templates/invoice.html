@@ -263,6 +263,7 @@
             </div>
 
             <div class="nav-links">
+                <a href="{% url 'userdashb' %}">Continue Shopping</a>
                 <a href="{% url 'usercart' %}">Cart</a>
                 <a href="/userlogout/">Logout</a>
             </div>
@@ -345,7 +346,7 @@
                     // Fallback: force redirect after 2 seconds in case onafterprint doesn't fire
                     setTimeout(function () {
                         window.location.href = "{% url 'userdashb' %}";
-                    }, 5000);
+                    }, 3000);
                 }
             </script>
 

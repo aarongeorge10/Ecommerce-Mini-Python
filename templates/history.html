@@ -240,6 +240,7 @@
 </head>
 
 <body>
+
   <nav>
     <div class="nav-inner">
       <div class="brand">
@@ -256,7 +257,7 @@
       </div>
     </div>
   </nav>
-
+  {% load tz %}
   <div class="page-wrapper">
     <div class="page-header">
       <div>
@@ -283,18 +284,15 @@
             <tr>
               <td class="order-id">#{{ order.id }}</td>
               <td>
-                {# will be blank if field doesn't exist; safe to access #}
                 {% if order.created_at %}
-                  {{ order.created_at|date:"M d, Y H:i" }}
-                {% elif order.order_date %}
-                  {{ order.order_date|date:"M d, Y H:i" }}
+                {{ order.created_at|localtime|date:"M d, Y h:i A" }}
                 {% endif %}
               </td>
               <td>
                 {% if order.payment_method %}
-                  <span class="badge">{{ order.payment_method|title }}</span>
+                <span class="badge">{{ order.payment_method|title }}</span>
                 {% else %}
-                  <span class="badge">N/A</span>
+                <span class="badge">N/A</span>
                 {% endif %}
               </td>
               <td>₹{{ order.total_price }}</td>

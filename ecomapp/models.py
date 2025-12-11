@@ -6,6 +6,8 @@ class img_up(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(null=True,blank=True,upload_to="images/")
     description = models.TextField(blank=True, null=True, max_length=200)
+    trailer = models.FileField(upload_to="trailers/", blank=True, null=True)
+    
 
 
 class User_reg(models.Model):

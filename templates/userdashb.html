@@ -267,7 +267,13 @@
         .popup-btn-secondary:hover {
             background: #d1d5db;
         }
-        
+
+        .popup-video {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            max-height: 200px;
+            object-fit: cover;
+        }
     </style>
 </head>
 
@@ -330,8 +336,12 @@
                 <a href="#" class="popup-close">&times;</a>
             </div>
 
-            {% if c.image %}
-            <img src="{{ c.image.url }}" alt="{{ c.name }}" class="popup-image">
+            <!-- 📌 Show Trailer Instead of Image -->
+            {% if c.trailer %}
+            <video class="popup-video" autoplay muted loop controls width="100%">
+                <source src="{{ c.trailer.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
             {% endif %}
 
             <div class="popup-body">
@@ -350,7 +360,6 @@
         </div>
     </div>
     {% endfor %}
-
 </body>
 
 </html>

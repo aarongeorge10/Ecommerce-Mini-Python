@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,12 +6,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecommerce Home</title>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
     <style>
         body {
             margin: 0;
             padding: 0;
             margin-top: 90px;
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #content {
+            display: none;
+            padding: 20px;
         }
 
         /* NAVBAR */
@@ -86,8 +104,13 @@
         }
 
         @keyframes glow {
-            from { text-shadow: 0 0 8px white; }
-            to { text-shadow: 0 0 20px yellow; }
+            from {
+                text-shadow: 0 0 8px white;
+            }
+
+            to {
+                text-shadow: 0 0 20px yellow;
+            }
         }
 
         /* PRODUCT GRID */
@@ -251,11 +274,25 @@
 
 <body>
 
+    <!-- 🔄 LOADER -->
+    <div id="loader">
+        <lottie-player src="/media/animations/Autocar.json" 
+        background="transparent" 
+        speed="1"
+        style="width: 600px; height: 600px;" 
+        loop autoplay>
+        </lottie-player>
+
+        <p>Loading, please wait...</p>
+    </div>
+
     <!-- NAVBAR -->
     <nav>
         <div class="nav-inner">
             <div class="brand">
-                <img class="site-logo" src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg" alt="Logo">
+                <img class="site-logo"
+                    src="https://cdn.vectorstock.com/i/1000v/65/92/automotive-logo-badges-premium-collection-vector-33986592.jpg"
+                    alt="Logo">
                 <a href="{% url 'home' %}" class="site-name">AutoCar</a>
             </div>
             <ul>
@@ -322,6 +359,16 @@
         </div>
     </div>
     {% endfor %}
+
+
+    <script>
+        window.addEventListener("load", function () {
+            setTimeout(() => {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("content").style.display = "block";
+            }, 2000); // 2 sec loader
+        });
+    </script>
 
 </body>
 

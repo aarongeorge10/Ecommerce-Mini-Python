@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ecomwebprj
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn ecomwebprj.wsgi
+    envVars:
+      -key: SECRET_KEY
+      generateValue: true
